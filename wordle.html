@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Wordle Game</title>
+</head>
+<style>
+    .box {
+        border: black solid 3px;
+        height: 120px;
+        width: 120px;
+        font-size: 120px;
+        text-align: center;
+    }
+
+    @keyframes flip {
+        0% {
+            height: 120px;
+        }
+        50% {
+            height: 0;
+        }
+        100% {
+            height: 120px;
+        }
+    }
+</style>
+<body>
+<div id="container">
+
+</div>
+<script>
+    let data = '["bukva","jazik","vokal","misla","table"]';
+    let parsedData = JSON.parse(data);
+    let randomWord = generateWord();
+    let container = document.getElementById('container');
+    let guessed = false;
+    let guessedLetters = 0;
+    let maxAttempts = 5;
+    console.log(randomWord)
+    window.addEventListener('load', render);
+
+    function generateWord() {
+        return parsedData[Math.floor(Math.random() * parsedData.length)];
+    }
+
+    function render() {
+        let newRow = document.createElement('div');
+        newRow.style.display = 'flex';
+
+        for (let i = 0; i < randomWord.length; i++) {
+            let input = document.createElement('input');
+            input.style.animation = `flip ${(i + 1) * 0.2}s ease-in-out`;
+            input.addEventListener('keydown', checkGuessed);
+            input.classList.add('box');
+            newRow.append(input);
+        }
+        container.append(newRow);
+    }
+
+
+    function checkGuessed(e) {
+        if (e.key === "Enter") {
+            if (maxAttempts === 0 || guessed) {
+                location.reload();
+                return;
+            }
+            let divParent = this.parentElement;
+            let inputs = divParent.childNodes;
+            for (let i = 0; i < inputs.length; i++) {
+                if (inputs[i].value.length !== 1) {
+                    alert('Please enter only one letter');
+                    return;
+                }
+                inputs[i].style.animation = `flip ${(i + 1) * 0.2}s ease-in-out`;
+
+                if (inputs[i].value === randomWord[i]) {
+                    inputs[i].style.backgroundColor = 'green';
+                    guessedLetters++;
+                } else if (randomWord.includes(inputs[i].value)) {
+                    inputs[i].style.backgroundColor = 'yellow';
+                } else {
+                    inputs[i].style.backgroundColor = 'grey';
+                }
+            }
+            if (guessedLetters === randomWord.length) {
+                document.body.style.backgroundColor = 'green';
+                guessed = true;
+            } else {
+                guessedLetters = 0;
+                maxAttempts--;
+                render();
+            }
+        }
+
+    }
+</script>
+</body>
+</html>
